@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP_Sapata Rígida Isolada — NBR 6118</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2230;
+    --border: #30363d;
+    --accent: #e8a020;
+    --accent2: #3fb950;
+    --accent3: #58a6ff;
+    --accent-warn: #f85149;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-box {
+    width: 40px; height: 40px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight:600; font-size:13px; color:#000;
+    flex-shrink:0;
+  }
+  header h1 { font-size:17px; font-weight:600; }
+  header small { color: var(--text-muted); font-size:12px; font-family:var(--mono); }
+  .badge {
+    margin-left:auto;
+    background: rgba(232,160,32,0.15);
+    border:1px solid var(--accent);
+    color: var(--accent);
+    font-family:var(--mono); font-size:11px;
+    padding: 3px 10px; border-radius:4px;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* PANELS */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .panel-header {
+    background: var(--surface2);
+    padding: 12px 20px;
+    font-size:12px; font-weight:600;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    display:flex; align-items:center; gap:8px;
+  }
+  .panel-header .dot {
+    width:8px; height:8px; border-radius:50%;
+    background: var(--accent);
+  }
+  .panel-body { padding: 20px; }
+
+  /* FORM */
+  .section-title {
+    font-size:11px; font-weight:600;
+    font-family:var(--mono); letter-spacing:.1em;
+    color: var(--accent);
+    text-transform:uppercase;
+    margin: 18px 0 10px;
+    padding-bottom:6px;
+    border-bottom:1px solid rgba(232,160,32,0.2);
+  }
+  .section-title:first-child { margin-top:0; }
+  .field-group { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label { font-size:11px; color:var(--text-muted); font-family:var(--mono); }
+  .field label span { color: var(--accent3); }
+  .field input, .field select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size:13px;
+    padding: 8px 12px;
+    border-radius:6px;
+    transition: border-color .2s;
+    width:100%;
+  }
+  .field input:focus, .field select:focus {
+    outline:none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(232,160,32,0.1);
+  }
+  .field select option { background: var(--surface); }
+  .unit { color: var(--text-dim); font-size:11px; }
+
+  /* BTN */
+  .btn-calc {
+    width:100%; margin-top:20px;
+    background: var(--accent);
+    color: #000; border:none;
+    font-family:var(--mono); font-weight:600; font-size:13px;
+    padding:12px; border-radius:7px;
+    cursor:pointer;
+    letter-spacing:.05em;
+    transition: all .2s;
+    position:relative; overflow:hidden;
+  }
+  .btn-calc:hover { background:#f0aa30; transform:translateY(-1px); box-shadow:0 4px 20px rgba(232,160,32,0.3); }
+  .btn-calc:active { transform:translateY(0); }
+
+  /* RESULTS */
+  .results-col { display:flex; flex-direction:column; gap:18px; }
+
+  /* SKETCH */
+  .sketch-wrap {
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  #footing-canvas { display:block; width:100%; }
+
+  /* RESULT SECTIONS */
+  .res-section {
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .res-header {
+    background: var(--surface2);
+    border-bottom:1px solid var(--border);
+    padding:10px 18px;
+    font-size:11px; font-weight:600;
+    font-family:var(--mono); letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    display:flex; align-items:center; gap:8px;
+  }
+  .res-header .dot { width:7px;height:7px;border-radius:50%; }
+  .dot-blue { background:var(--accent3); }
+  .dot-green { background:var(--accent2); }
+  .dot-yellow { background:var(--accent); }
+  .dot-red { background:var(--accent-warn); }
+
+  .res-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+    gap:1px;
+    background: var(--border);
+  }
+  .res-cell {
+    background:var(--surface);
+    padding:14px 16px;
+  }
+  .res-cell .lbl { font-size:10px; color:var(--text-muted); font-family:var(--mono); margin-bottom:4px; }
+  .res-cell .val {
+    font-size:20px; font-weight:600;
+    font-family:var(--mono);
+    color:var(--text);
+  }
+  .res-cell .val.ok { color:var(--accent2); }
+  .res-cell .val.warn { color:var(--accent-warn); }
+  .res-cell .val.accent { color:var(--accent); }
+  .res-cell .sub { font-size:10px; color:var(--text-dim); margin-top:2px; }
+
+  /* CHECK ROW */
+  .check-list { padding:14px 16px; display:flex; flex-direction:column; gap:8px; }
+  .check-row {
+    display:flex; align-items:center; gap:10px;
+    font-size:12px; font-family:var(--mono);
+  }
+  .check-icon {
+    width:20px;height:20px;border-radius:4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;flex-shrink:0;
+  }
+  .check-icon.ok { background:rgba(63,185,80,.15); color:var(--accent2); border:1px solid rgba(63,185,80,.3); }
+  .check-icon.fail { background:rgba(248,81,73,.15); color:var(--accent-warn); border:1px solid rgba(248,81,73,.3); }
+  .check-desc { color:var(--text-muted); }
+  .check-val { margin-left:auto; }
+  .check-val.ok { color:var(--accent2); }
+  .check-val.fail { color:var(--accent-warn); }
+
+  /* EQUATION */
+  .eq-box {
+    background: var(--bg);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:10px 14px;
+    font-family:var(--mono);
+    font-size:12px;
+    color: var(--text-muted);
+    margin: 8px 16px;
+  }
+  .eq-box strong { color:var(--accent3); }
+
+  /* ARMADURA BOX */
+  .arm-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--border);
+  }
+  .arm-cell {
+    background:var(--surface);
+    padding:16px;
+  }
+  .arm-dir { font-size:10px; color:var(--text-muted); font-family:var(--mono); margin-bottom:8px; }
+  .arm-val { font-size:24px; font-weight:700; font-family:var(--mono); color:var(--accent2); }
+  .arm-unit { font-size:12px; color:var(--text-muted); }
+  .arm-detail { font-size:11px; color:var(--text-dim); margin-top:4px; font-family:var(--mono); }
+
+  /* PLACEHOLDER */
+  .placeholder {
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:40px;gap:12px; color:var(--text-dim);text-align:center;
+  }
+  .placeholder svg { opacity:.3; }
+  .placeholder p { font-size:13px; font-family:var(--mono); }
+
+  /* FORMULA INFO */
+  .formula-strip {
+    padding:12px 16px;
+    background:var(--bg);
+    border-top:1px solid var(--border);
+    font-size:11px; font-family:var(--mono);
+    color:var(--text-dim);
+  }
+  .formula-strip strong { color:var(--accent3); }
+
+  /* FISSURAS */
+  .fis-grid {
+    display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);
+  }
+  .fis-cell { background:var(--surface);padding:14px 16px; }
+
+  @media(max-width:900px){
+    .container { grid-template-columns:1fr; }
+    .field-group { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo01.png" alt="Logo APavan Engenharia" width="75">
+    <h1>APavan_Sapata Rígida Isolada</h1>
+    <small>NBR 6118 · Método das Bielas · Concreto Armado</small>
+  </div>
+  <span class="badge">v1.0</span>
+</header>
+
+<div class="container">
+
+  <!-- INPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header"><span class="dot"></span>Dados de Entrada</div>
+    <div class="panel-body">
+
+      <div class="section-title">Pilar</div>
+      <div class="field-group">
+        <div class="field">
+          <label>Dimensão <span>a</span> (lado maior) <span class="unit">cm</span></label>
+          <input type="number" id="a_pil" value="30" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>Dimensão <span>b</span> (lado menor) <span class="unit">cm</span></label>
+          <input type="number" id="b_pil" value="20" min="10" step="1">
+        </div>
+        <div class="field">
+          <label>Carga de serviço N<span>k</span> <span class="unit">kN</span></label>
+          <input type="number" id="Nk" value="300" min="10" step="10">
+        </div>
+        <div class="field">
+          <label>Barras pilar ϕ <span class="unit">mm</span></label>
+          <input type="number" id="phi_pil" value="10" min="6" step="1">
+        </div>
+      </div>
+
+      <div class="section-title">Solo</div>
+      <div class="field-group">
+        <div class="field">
+          <label>σ<span>adm</span> <span class="unit">MPa</span></label>
+          <input type="number" id="sigma_adm" value="0.20" min="0.05" step="0.01">
+        </div>
+      </div>
+
+      <div class="section-title">Materiais</div>
+      <div class="field-group">
+        <div class="field">
+          <label>f<span>ck</span> concreto <span class="unit">MPa</span></label>
+          <select id="fck">
+            <option value="20">C20 — 20 MPa</option>
+            <option value="25">C25 — 25 MPa</option>
+            <option value="30">C30 — 30 MPa</option>
+            <option value="35">C35 — 35 MPa</option>
+            <option value="40">C40 — 40 MPa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Aço</label>
+          <select id="aco">
+            <option value="500">CA-50 — 500 MPa</option>
+            <option value="600">CA-60 — 600 MPa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">Cobrimento <span class="unit">cm</span></div>
+      <div class="field-group">
+        <div class="field">
+          <label>Cobrimento nominal</label>
+          <input type="number" id="cob" value="4.5" min="1.5" step="0.5">
+        </div>
+        <div class="field">
+          <label>ϕ armadura base <span class="unit">mm</span></label>
+          <input type="number" id="phi_arm" value="10" min="5" step="1">
+        </div>
+      </div>
+
+      <button class="btn-calc" onclick="calcular()">▶ CALCULAR SAPATA</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-col">
+
+    <!-- SKETCH -->
+    <div class="sketch-wrap">
+      <div class="panel-header"><span class="dot" style="background:var(--accent3)"></span>Geometria da Sapata</div>
+      <canvas id="footing-canvas" height="220"></canvas>
+    </div>
+
+    <!-- RESULTS PLACEHOLDER -->
+    <div id="results-container">
+      <div class="res-section">
+        <div class="placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="21" x2="9" y2="9"/>
+          </svg>
+          <p>Preencha os dados e clique em<br><strong style="color:var(--accent)">CALCULAR SAPATA</strong></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── helpers ───────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = (v,d=2) => v.toFixed(d);
+
+// Diâmetro da barra → área individual (mm² → cm²)
+function areaBar(phi_mm){ return Math.PI*(phi_mm/10)**2/4; }
+
+// Comprimento de ancoragem básico CA-50 / CA-60 simplificado (NBR)
+function ancoragem(phi_mm, fck_mpa, fyk_mpa){
+  const fbd = 0.21 * Math.pow(fck_mpa, 2/3); // resistência aderência (MPa)
+  const fyd = fyk_mpa / 1.15;
+  const lb = (phi_mm/40) * (fyd / fbd);  // cm
+  return lb;
+}
+
+function calcular(){
+  // ── inputs ──
+  const a  = +$('a_pil').value;
+  const b  = +$('b_pil').value;
+  const Nk = +$('Nk').value;
+  const phi_pil = +$('phi_pil').value;
+  const sigma_adm = +$('sigma_adm').value * 0.1;  // kN/cm²  (1 MPa = 0,1 kN/cm²)
+  const fck = +$('fck').value;           // MPa
+  const fyk = +$('aco').value;           // MPa
+  const cob = +$('cob').value;           // cm
+  const phi_arm = +$('phi_arm').value;   // mm
+
+  // ── materiais ──
+  const fcd = fck / 1.4;                // kN/cm² (1 MPa = 0.1 kN/cm²) — convert
+  const fcd_knm = fck * 10 / 1.4;      // kN/m²
+  const fcd_kncm = Math.round(fck * 0.1 / 1.4 * 10)/10;  // kN/cm² (arred. conforme NBR)
+  const fyd = (fyk / 1.15) * 0.1;      // kN/cm²
+
+  // ── 1. PROJETO GEOMÉTRICO ──
+  const S = 1.05 * Nk / sigma_adm;     // cm²
+  const A = Math.sqrt((a/b)*S);
+  const B = Math.sqrt((b/a)*S);
+
+  // Arredondar para múltiplos de 5 cm
+  const A_ad = Math.ceil(A/5)*5;
+  const B_ad = Math.ceil(B/5)*5;
+
+  // Altura mínima rígida
+  const h_min1 = (A_ad - a)/4;
+  const h_min2 = (B_ad - b)/4;
+  const h_geo  = Math.max(h_min1, h_min2);
+
+  // Ancoragem
+  const lb = ancoragem(phi_pil, fck, fyk);
+  const h_anc = 0.6*lb + 5;
+
+  const h_ad = Math.ceil(Math.max(h_geo, h_anc)/5)*5; // arredonda 5 cm
+
+  // h0 (borda)
+  const h0_min = Math.max(h_ad/3, 20);
+  const h0_ad  = Math.ceil(h0_min/5)*5;
+
+  // altura útil
+  const d = h_ad - cob - phi_arm/10/2;  // cm
+
+  // ── 2. VERIFICAÇÃO TENSÕES ──
+  const Nd = 1.4 * Nk;
+  const sigma_d = Nd / (a * b);          // kN/cm²
+  const lim = 0.20 * fcd_kncm;
+
+  let Z, x_val, biela_mode;
+  if(sigma_d <= lim){
+    Z = d;
+    x_val = 0;
+    biela_mode = 'σd ≤ 0,20·fcd  →  Z = d';
+  } else {
+    // Resolver eq 8.5.6: ab/((a+4x)(b+4x)) * sigma_d = 0.20*fcd_kncm
+    // ab·sigma_d = 0.20·fcd·(a+4x)(b+4x)
+    // k = ab·sigma_d/(0.20·fcd)
+    const k = (a*b*sigma_d)/(0.20*fcd_kncm);
+    // (a+4x)(b+4x) = k  →  16x²+4(a+b)x+(ab-k)=0
+    const A2=16, B2=4*(a+b), C2=(a*b - k);
+    const disc = B2*B2 - 4*A2*C2;
+    x_val = (-B2 + Math.sqrt(disc))/(2*A2);
+    Z = d - x_val;
+    biela_mode = 'σd > 0,20·fcd  →  Z = d − x';
+  }
+
+  // ── 3. ARMADURAS ──
+  const Asx = Nd*(A_ad - a)/(8*Z*fyd);  // cm²
+  const Asy = Nd*(B_ad - b)/(8*Z*fyd);  // cm²
+
+  // Número de barras
+  const abar_cm2 = areaBar(phi_arm);
+  const n_x = Math.ceil(Asx / abar_cm2);
+  const n_y = Math.ceil(Asy / abar_cm2);
+  const Asx_ad = n_x * abar_cm2;
+  const Asy_ad = n_y * abar_cm2;
+
+  // Espaçamento
+  const esp_x = (B_ad - 2*cob - phi_arm/10) / (n_x - 1);
+  const esp_y = (A_ad - 2*cob - phi_arm/10) / (n_y - 1);
+
+  // ── 4. ABERTURA DE FISSURAS (simplificado — wk estimado) ──
+  // Mk características
+  const Mk_x = Nk*(A_ad - a)/8 /100; // kNm
+  const Mk_y = Nk*(B_ad - b)/8 /100;
+
+  // wk estimado por fórmula simplificada NBR (ELS)
+  const Es = 21000; // kN/cm²
+  const sigma_s_x = Mk_x*1e2 / (Asx_ad * 0.9 * d); // aprox kN/cm²
+  const sigma_s_y = Mk_y*1e2 / (Asy_ad * 0.9 * d);
+  const eps_cs = 20e-5; // retração estimada
+  // wk ≈ fissura simplificada (estimativa conservadora)
+  const wk_x = (phi_arm/10) * (sigma_s_x / Es + 0.5*eps_cs) * 100; // mm (aprox)
+  const wk_y = (phi_arm/10) * (sigma_s_y / Es + 0.5*eps_cs) * 100;
+
+  const wk_lim = 0.30; // mm ECA II (NBR)
+
+  // ── RENDER ──
+  renderResults({
+    a,b,Nk,fck,fyk,phi_arm,phi_pil,cob,
+    S,A,B,A_ad,B_ad,
+    h_min1,h_min2,h_geo,lb,h_anc,h_ad,h0_ad,d,
+    Nd,sigma_d,lim,fcd_kncm,biela_mode,x_val,Z,
+    fyd,Asx,Asy,n_x,n_y,Asx_ad,Asy_ad,esp_x,esp_y,abar_cm2,
+    Mk_x,Mk_y,wk_x,wk_y,wk_lim,
+    sigma_adm,sigma_geo: Nd/(A_ad*B_ad)*10 // MPa
+  });
+
+  drawSketch({A:A_ad,B:B_ad,h:h_ad,h0:h0_ad,a,b,n_x,n_y,phi_arm});
+}
+
+// ─── RENDER RESULTS ──────────────────────────────────────────────────────────
+function renderResults(r){
+  const h_ok = r.h_ad >= r.h_geo && r.h_ad >= r.h_anc;
+  const s_ok = r.sigma_d / r.fcd_kncm <= 1.0; // σd ≤ fcd (compressão máx)
+  const wx_ok = r.wk_x <= r.wk_lim;
+  const wy_ok = r.wk_y <= r.wk_lim;
+
+  const html = `
+  <!-- GEO -->
+  <div class="res-section">
+    <div class="res-header"><span class="dot dot-blue"></span>1 · Projeto Geométrico</div>
+    <div class="res-grid">
+      <div class="res-cell"><div class="lbl">Área necessária S</div><div class="val accent">${fmt(r.S)} cm²</div><div class="sub">${fmt(r.S/1e4,3)} m²</div></div>
+      <div class="res-cell"><div class="lbl">Lado A (cálculo)</div><div class="val">${fmt(r.A)} cm</div><div class="sub">Adotado: ${r.A_ad} cm</div></div>
+      <div class="res-cell"><div class="lbl">Lado B (cálculo)</div><div class="val">${fmt(r.B)} cm</div><div class="sub">Adotado: ${r.B_ad} cm</div></div>
+      <div class="res-cell"><div class="lbl">Área adotada</div><div class="val ok">${fmt(r.A_ad*r.B_ad/1e4,3)} m²</div><div class="sub">${r.A_ad}×${r.B_ad} cm</div></div>
+    </div>
+    <div class="eq-box">
+      A = √(a/b·S) = √(${r.a}/${r.b}·${fmt(r.S)}) = <strong>${fmt(r.A)} cm</strong> &nbsp;→&nbsp; Adot. <strong>${r.A_ad} cm</strong>
+    </div>
+    <div class="check-list">
+      <div class="check-row">
+        <div class="check-icon ${r.h_ad>=r.h_min1?'ok':'fail'}">${r.h_ad>=r.h_min1?'✓':'✗'}</div>
+        <span class="check-desc">h ≥ (A−a)/4 = ${fmt(r.h_min1)} cm</span>
+        <span class="check-val ${r.h_ad>=r.h_min1?'ok':'fail'}">h = ${r.h_ad} cm</span>
+      </div>
+      <div class="check-row">
+        <div class="check-icon ${r.h_ad>=r.h_min2?'ok':'fail'}">${r.h_ad>=r.h_min2?'✓':'✗'}</div>
+        <span class="check-desc">h ≥ (B−b)/4 = ${fmt(r.h_min2)} cm</span>
+        <span class="check-val ${r.h_ad>=r.h_min2?'ok':'fail'}">h = ${r.h_ad} cm</span>
+      </div>
+      <div class="check-row">
+        <div class="check-icon ${r.h_ad>=r.h_anc?'ok':'fail'}">${r.h_ad>=r.h_anc?'✓':'✗'}</div>
+        <span class="check-desc">h ≥ 0,6·lb+5 = ${fmt(r.h_anc)} cm &nbsp;(lb=${fmt(r.lb)} cm)</span>
+        <span class="check-val ${r.h_ad>=r.h_anc?'ok':'fail'}">h = ${r.h_ad} cm</span>
+      </div>
+    </div>
+    <div class="formula-strip">Altura adotada: <strong>h = ${r.h_ad} cm</strong> &nbsp;|&nbsp; h₀ = ${r.h0_ad} cm &nbsp;|&nbsp; d = <strong>${fmt(r.d)} cm</strong></div>
+  </div>
+
+  <!-- TENSÕES -->
+  <div class="res-section">
+    <div class="res-header"><span class="dot dot-yellow"></span>2 · Verificação das Tensões</div>
+    <div class="res-grid">
+      <div class="res-cell"><div class="lbl">N_d = 1,4·N_k</div><div class="val accent">${fmt(r.Nd)} kN</div></div>
+      <div class="res-cell"><div class="lbl">σ_d = N_d/(a·b)</div><div class="val ${r.sigma_d<=r.lim?'ok':'warn'}">${fmt(r.sigma_d,4)} kN/cm²</div></div>
+      <div class="res-cell"><div class="lbl">f_cd = f_ck/1,4</div><div class="val">${fmt(r.fcd_kncm,4)} kN/cm²</div></div>
+      <div class="res-cell"><div class="lbl">0,20·f_cd</div><div class="val">${fmt(r.lim,4)} kN/cm²</div></div>
+      <div class="res-cell"><div class="lbl">Biela mode</div><div class="val" style="font-size:12px">${r.sigma_d<=r.lim?'Z = d':'Z = d − x'}</div></div>
+      <div class="res-cell"><div class="lbl">Z (braço)</div><div class="val accent">${fmt(r.Z)} cm</div><div class="sub">${r.x_val>0?'x = '+fmt(r.x_val)+' cm':'—'}</div></div>
+    </div>
+    <div class="eq-box">${r.biela_mode}&nbsp;&nbsp;→&nbsp;&nbsp;Z = <strong>${fmt(r.Z)} cm</strong> &nbsp;(0,85d = ${fmt(0.85*r.d)} cm)</div>
+    ${r.x_val > 0 ? `
+    <!-- SEÇÃO A DISTÂNCIA x DO TOPO — Fig. 8.5.3 / Eq. 8.5.5 e 8.5.6 -->
+    <div style="padding:0 16px 14px">
+      <div style="font-size:10px;font-weight:600;font-family:var(--mono);letter-spacing:.1em;color:var(--accent);text-transform:uppercase;padding:12px 0 8px;border-top:1px solid rgba(232,160,32,0.15);margin-top:4px">
+        Seção a distância x do topo — Fig. 8.5.3
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:6px;overflow:hidden">
+        <div style="background:var(--surface);padding:12px 14px">
+          <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-bottom:4px">x (profundidade)</div>
+          <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:var(--accent)">${fmt(r.x_val,2)} cm</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;font-family:var(--mono)">Z = d − x</div>
+        </div>
+        <div style="background:var(--surface);padding:12px 14px">
+          <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-bottom:4px">Área da seção</div>
+          <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:var(--accent3)">${fmt((r.a+4*r.x_val)*(r.b+4*r.x_val),1)} cm²</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;font-family:var(--mono)">(a+4x)(b+4x) = (${fmt(r.a+4*r.x_val,1)})×(${fmt(r.b+4*r.x_val,1)})</div>
+        </div>
+        <div style="background:var(--surface);padding:12px 14px">
+          <div style="font-size:10px;color:var(--text-muted);font-family:var(--mono);margin-bottom:4px">σ_1d (Eq. 8.5.5)</div>
+          <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:var(--accent2)">${fmt(r.Nd/((r.a+4*r.x_val)*(r.b+4*r.x_val)),4)} kN/cm²</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;font-family:var(--mono)">N_d / [(a+4x)(b+4x)]</div>
+        </div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-top:8px">
+        Eq. 8.5.6 &nbsp;→&nbsp;
+        σ_1d = <strong style="color:var(--accent3)">ab / [(a+4x)(b+4x)]</strong> · σ_d ≤ 0,20·f_cd
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        <strong style="color:var(--accent3)">${fmt(r.a*r.b/((r.a+4*r.x_val)*(r.b+4*r.x_val)),4)}</strong> · ${fmt(r.sigma_d,4)}
+        = <strong style="color:var(--accent2)">${fmt(r.a*r.b*r.sigma_d/((r.a+4*r.x_val)*(r.b+4*r.x_val)),4)} kN/cm²</strong>
+        ≤ <strong style="color:var(--accent)">${fmt(0.20*r.fcd_kncm,4)} kN/cm²</strong> ✓
+      </div>
+    </div>` : `
+    <div style="padding:8px 16px 12px">
+      <div style="background:var(--bg);border:1px solid rgba(63,185,80,0.2);border-radius:6px;padding:9px 14px;font-family:var(--mono);font-size:11px;color:var(--accent2)">
+        σ_d ≤ 0,20·f_cd &nbsp;→&nbsp; Bielas convergem ao topo. Seção a distância x não é necessária (x = 0).
+      </div>
+    </div>`}
+  </div>
+
+  <!-- ARMADURAS -->
+  <div class="res-section">
+    <div class="res-header"><span class="dot dot-green"></span>3 · Cálculo das Armaduras</div>
+    <div class="eq-box">
+      A_sx = N_d(A−a) / (8·Z·f_yd) &nbsp;|&nbsp; A_sy = N_d(B−b) / (8·Z·f_yd)<br>
+      f_yd = ${fmt(r.fyd,2)} kN/cm²
+    </div>
+    <div class="arm-grid">
+      <div class="arm-cell">
+        <div class="arm-dir">Direção x — lado maior (A = ${r.A_ad} cm)</div>
+        <div class="arm-val">${fmt(r.Asx,2)} <span class="arm-unit">cm²</span></div>
+        <div class="arm-detail">Adotado: ${r.n_x}ϕ${r['phi_arm']}  →  ${fmt(r.Asx_ad,2)} cm²</div>
+        <div class="arm-detail">Esp. ≈ ${fmt(r.esp_x,1)} cm c/c</div>
+      </div>
+      <div class="arm-cell">
+        <div class="arm-dir">Direção y — lado menor (B = ${r.B_ad} cm)</div>
+        <div class="arm-val">${fmt(r.Asy,2)} <span class="arm-unit">cm²</span></div>
+        <div class="arm-detail">Adotado: ${r.n_y}ϕ${r['phi_arm']}  →  ${fmt(r.Asy_ad,2)} cm²</div>
+        <div class="arm-detail">Esp. ≈ ${fmt(r.esp_y,1)} cm c/c</div>
+      </div>
+    </div>
+    <div class="formula-strip">
+      Área barra ϕ${r.phi_arm}: <strong>${fmt(r.abar_cm2,3)} cm²</strong> &nbsp;|&nbsp;
+      Direção x: <strong>${r.n_x}ϕ${r.phi_arm}c.${fmt(r.esp_x,0)}</strong> &nbsp;|&nbsp;
+      Direção y: <strong>${r.n_y}ϕ${r.phi_arm}c.${fmt(r.esp_y,0)}</strong>
+    </div>
+  </div>
+
+  <!-- FISSURAS -->
+  <div class="res-section">
+    <div class="res-header"><span class="dot ${wx_ok&&wy_ok?'dot-green':'dot-red'}"></span>4 · Verificação de Fissuração (ELS)</div>
+    <div class="fis-grid">
+      <div class="fis-cell">
+        <div class="res-cell" style="padding:0"><div class="lbl">M_k (dir. x)</div><div class="val">${fmt(r.Mk_x,2)} kNm</div></div>
+        <div style="margin-top:10px"><div class="lbl" style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">w_k (estimado)</div>
+        <div class="val ${wx_ok?'ok':'warn'}" style="font-size:20px;font-family:var(--mono);font-weight:700">${fmt(r.wk_x,3)} mm</div>
+        <div class="check-val ${wx_ok?'ok':'fail'}" style="font-size:11px;font-family:var(--mono)">${wx_ok?'✓ OK (< 0,30 mm)':'✗ EXCEDE (> 0,30 mm)'}</div></div>
+      </div>
+      <div class="fis-cell">
+        <div class="res-cell" style="padding:0"><div class="lbl">M_k (dir. y)</div><div class="val">${fmt(r.Mk_y,2)} kNm</div></div>
+        <div style="margin-top:10px"><div class="lbl" style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">w_k (estimado)</div>
+        <div class="val ${wy_ok?'ok':'warn'}" style="font-size:20px;font-family:var(--mono);font-weight:700">${fmt(r.wk_y,3)} mm</div>
+        <div class="check-val ${wy_ok?'ok':'fail'}" style="font-size:11px;font-family:var(--mono)">${wy_ok?'✓ OK (< 0,30 mm)':'✗ EXCEDE (> 0,30 mm)'}</div></div>
+      </div>
+    </div>
+    <div class="formula-strip">Limite NBR 6118 — Classe CA II (solo): <strong>w_k ≤ 0,30 mm</strong></div>
+  </div>
+  `;
+  $('results-container').innerHTML = html;
+}
+
+// ─── CANVAS SKETCH ───────────────────────────────────────────────────────────
+function drawSketch({A,B,h,h0,a,b,n_x,n_y,phi_arm}){
+  const canvas = $('footing-canvas');
+  const W = canvas.offsetWidth || 700;
+  canvas.width = W;
+  canvas.height = 220;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,220);
+
+  // Colors
+  const col = {
+    concrete:'#1c2230',
+    border:'#30363d',
+    dim:'#484f58',
+    text:'#8b949e',
+    accent:'#e8a020',
+    steel:'#3fb950',
+    pillar:'#58a6ff',
+    label:'#e6edf3',
+  };
+
+  // ── FRONT VIEW (trapezoid cross-section) ──
+  const pad = 20;
+  const viewW = W * 0.45;
+  const viewH = 180;
+  const scale = Math.min(viewW/(A+40), viewH/(h+40));
+  const ox = pad + viewW/2;
+  const oy = pad + viewH * 0.15;
+
+  // scale footing dims
+  const sw = A * scale;
+  const sh = h * scale;
+  const sh0 = h0 * scale;
+  const sa = a * scale;
+  const sb = b * scale;
+
+  // trapezoid body
+  ctx.beginPath();
+  ctx.moveTo(ox - sw/2, oy + sh);        // BL
+  ctx.lineTo(ox + sw/2, oy + sh);        // BR
+  ctx.lineTo(ox + sa/2 + sh0/sh*(sw/2-sa/2), oy + sh - sh0); // TR area
+  ctx.lineTo(ox + sa/2, oy);             // TR top
+  ctx.lineTo(ox - sa/2, oy);             // TL top
+  ctx.lineTo(ox - sa/2 - sh0/sh*(sw/2-sa/2), oy + sh - sh0);
+  ctx.closePath();
+  ctx.fillStyle = col.concrete;
+  ctx.fill();
+  ctx.strokeStyle = col.border;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // pillar
+  ctx.fillStyle = col.pillar + '33';
+  ctx.fillRect(ox - sa/2, oy - 20, sa, 20);
+  ctx.strokeStyle = col.pillar;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(ox - sa/2, oy - 20, sa, 20);
+
+  // steel bars (bottom)
+  const barY = oy + sh - 4;
+  const barSpanX = sw - 10;
+  ctx.strokeStyle = col.steel;
+  ctx.lineWidth = 1.5;
+  const nBars = Math.min(n_x, 8);
+  for(let i=0;i<nBars;i++){
+    const bx = ox - barSpanX/2 + (barSpanX/(nBars-1))*i;
+    ctx.beginPath();
+    ctx.arc(bx, barY, 2, 0, Math.PI*2);
+    ctx.fillStyle = col.steel;
+    ctx.fill();
+  }
+
+  // dims
+  ctx.strokeStyle = col.dim;
+  ctx.fillStyle = col.text;
+  ctx.font = `10px IBM Plex Mono, monospace`;
+  ctx.lineWidth = 0.8;
+  ctx.textAlign = 'center';
+
+  // A dim
+  const dimY = oy + sh + 16;
+  ctx.beginPath(); ctx.moveTo(ox-sw/2, dimY); ctx.lineTo(ox+sw/2, dimY); ctx.stroke();
+  ctx.fillText(`A = ${A} cm`, ox, dimY + 11);
+
+  // h dim
+  ctx.textAlign = 'right';
+  const dimX = ox - sw/2 - 8;
+  ctx.beginPath(); ctx.moveTo(dimX, oy); ctx.lineTo(dimX, oy+sh); ctx.stroke();
+  ctx.fillText(`h=${h}`, dimX-2, oy+sh/2+4);
+
+  // h0 bracket
+  ctx.fillStyle = col.accent;
+  ctx.font = '9px IBM Plex Mono, monospace';
+  ctx.fillText(`h₀=${h0}`, ox + sw/2 + 28, oy + sh - sh0/2);
+
+  // label
+  ctx.fillStyle = col.label;
+  ctx.font = `bold 11px IBM Plex Sans, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(`Vista Frontal`, ox, 210);
+
+  // ── TOP VIEW ──
+  const ox2 = W * 0.72;
+  const oy2 = 30;
+  const scaleT = Math.min((W*0.5 - 40)/A, 160/B);
+  const tW = A * scaleT;
+  const tH = B * scaleT;
+  const tA = a * scaleT;
+  const tB = b * scaleT;
+
+  // footing outline
+  ctx.strokeStyle = col.border;
+  ctx.fillStyle = col.concrete;
+  ctx.lineWidth = 1.5;
+  ctx.fillRect(ox2 - tW/2, oy2, tW, tH);
+  ctx.strokeRect(ox2 - tW/2, oy2, tW, tH);
+
+  // diagonal lines (rigid footing symbol)
+  ctx.strokeStyle = col.dim;
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(ox2-tW/2, oy2); ctx.lineTo(ox2-tA/2, oy2+tH/2-tB/2);
+  ctx.moveTo(ox2+tW/2, oy2); ctx.lineTo(ox2+tA/2, oy2+tH/2-tB/2);
+  ctx.moveTo(ox2-tW/2, oy2+tH); ctx.lineTo(ox2-tA/2, oy2+tH/2+tB/2);
+  ctx.moveTo(ox2+tW/2, oy2+tH); ctx.lineTo(ox2+tA/2, oy2+tH/2+tB/2);
+  ctx.stroke();
+
+  // pillar
+  ctx.fillStyle = col.pillar+'33';
+  ctx.fillRect(ox2-tA/2, oy2+tH/2-tB/2, tA, tB);
+  ctx.strokeStyle = col.pillar; ctx.lineWidth=1;
+  ctx.strokeRect(ox2-tA/2, oy2+tH/2-tB/2, tA, tB);
+
+  // rebar x (horizontal)
+  ctx.strokeStyle = col.steel; ctx.lineWidth=1;
+  const nbx = Math.min(n_x,7);
+  for(let i=0;i<nbx;i++){
+    const ry = oy2 + 4 + (tH-8)/(nbx-1)*i;
+    ctx.beginPath(); ctx.moveTo(ox2-tW/2+3,ry); ctx.lineTo(ox2+tW/2-3,ry); ctx.stroke();
+  }
+  // rebar y (vertical) — lighter
+  ctx.strokeStyle = col.steel+'66'; ctx.lineWidth=0.8;
+  const nby = Math.min(n_y,7);
+  for(let i=0;i<nby;i++){
+    const rx = ox2-tW/2+4 + (tW-8)/(nby-1)*i;
+    ctx.beginPath(); ctx.moveTo(rx,oy2+3); ctx.lineTo(rx,oy2+tH-3); ctx.stroke();
+  }
+
+  // A label
+  ctx.fillStyle = col.text; ctx.font='10px IBM Plex Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText(`A = ${A} cm`, ox2, oy2+tH+13);
+  // B label
+  ctx.textAlign='left';
+  ctx.fillText(`B=${B}`, ox2+tW/2+4, oy2+tH/2);
+
+  ctx.fillStyle=col.label; ctx.font='bold 11px IBM Plex Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText(`Vista Superior`, ox2, 210);
+}
+
+// ── initial draw ──
+window.addEventListener('load', () => {
+  drawSketch({A:160,B:110,h:35,h0:20,a:30,b:20,n_x:8,n_y:9,phi_arm:10});
+});
+window.addEventListener('resize', () => {
+  const r = window._lastResult;
+  if(r) drawSketch(r);
+});
+</script>
+</body>
+</html>
